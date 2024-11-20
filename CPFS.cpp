@@ -46,7 +46,7 @@ int variablechecker(char x){
 		case ' ':
 			return 9;
 		case '.':
-			return 1;
+			return 0;
 		default:
 			return 1;		
 	}
