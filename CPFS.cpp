@@ -6,6 +6,8 @@
 #include <string>
 
 int variablechecker(char x){
+	// this function checks what character type has been selected
+	// primarily it checks if the character is a number or not however it was adapted to identify parenthesis and operators
 	switch(x){
 		case '1':
 			return 0;
@@ -133,7 +135,7 @@ int calculator(std::string subbed){
 }
 
 
-std::string substitutor(std::string formatted, int length, std::vector<char> existingvar, std::vector<char> existingvarval) {
+std::string substitutor(std::string formatted, int length, std::vector<char> existingvar, std::vector<std::string> existingvarval) {
 	int counter = 0;
 	int flag = 0;
 	std::string substituted;
@@ -148,7 +150,7 @@ std::string substitutor(std::string formatted, int length, std::vector<char> exi
 				flag = 1;
 				std::cout << "found a character that needs substituting: " << i << std::endl;
 				std::cout << "flag recognised" << std::endl;
-				for (char i : existingvarval) {
+				while (tempcharcount  <= charcount) {
 					if (tempcharcount == charcount) {
 						std::cout << "value to substitute found: #" << existingvarval[tempcharcount] << "#" <<  std::endl;
 						if (formatted[counter-1] != '('){	
@@ -214,8 +216,9 @@ std::string simplifier(std::string substituted, std::string operatororder, int o
 	}
 	return simplified;
 }
+/*
 
-int euler(std::string equation, int length, int h, int x, int y, int finalx, char lettertosub, std::vector<char> existingvar) {
+int euler(std::string equation, int length, int h, int x, int y, int finalx, char lettertosub, std::vector<std::string> existingvar) {
 	//take value and sub into the equation to get new y
 	//std::vector<char> existingval = [lettertosub];
 	for (int i; i<((finalx-x)/h); ++i){
@@ -232,12 +235,12 @@ int euler(std::string equation, int length, int h, int x, int y, int finalx, cha
 	return y;						
 }
 
-
+*/
 
 int main(){
 	//grab equation from the user
 	std::vector<char> existingvar = {' '};
-	std::vector<char> existingvarval = {' '};
+	std::vector<std::string> existingvarval = {" "};
 	std::string input;
 	std::cout << "Enter equation: " << std::endl;
 	std::cin >> input;
@@ -247,7 +250,7 @@ int main(){
 	bool varinlist = true;
 	char x;
 	int length;
-	char xval;
+	std::string xval;
 	length = getlength(input);
 	while (counter < (length)){
 		x = input[counter];
@@ -278,7 +281,7 @@ int main(){
 					    }
 					std::cout << std::endl;
 					std::cout << "existingvarval: " << std::endl;
-					for (char num : existingvarval) {
+					for (std::string num : existingvarval) {
 					        std::cout << num << " ";
 					    }
 					std::cout << std::endl;
@@ -292,6 +295,11 @@ int main(){
 			counter+=1;	
 		}
 	}
+	std::cout << "existingvarval[1] = " << existingvarval[1] << std::endl;
+	std::string temp = "yippee";
+	std::cout << temp << " + " << "existingvarval[1] = ";
+	temp+=existingvarval[1];
+	std::cout << temp << std::endl;
 	// now has scanned list and found the non numeric and operators. 
 	std::string formatted = formatter(input, length);
 	std::cout << formatted << std::endl;
