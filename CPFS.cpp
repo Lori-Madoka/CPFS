@@ -27,6 +27,8 @@ int variablechecker(char x){
 			return 0;
 		case '0':
 			return 0;
+		case 'e':
+			return 10;
 		case '+':
 			return 2;		
 		case '-':
@@ -59,20 +61,50 @@ int getlength(std::string input){
 	return count;
 }
 
+int checkmathfunc(std::string input, int counter){
+	//checks the next few characters in the string and forwards the counter however far to skip.
+	if ((input[counter] == 'e')){
+		return 1;
+	}
+	else if ((input[counter] == 'c') && (input[counter+1] == 'o')){
+		return 3;
+	}
+	else if ((input[counter] == 's') && (input[counter+1] == 'i')){
+		return 3;
+	}
+	else if ((input[counter] == 't') && (input[counter+1] == 'a')){
+		return 3;
+	}
+	else{
+		return 0;	
+	}
+}
+
 std::string formatter(std::string input, int length) {
 	int counter = 0;
 	int compcount = 0;
 	std::string formattedexpression = "(";
 	while (counter < length) {
+		//check if the 
 		if((variablechecker(input[counter]) == 0) || (variablechecker(input[counter]) == 1)) {
-			formattedexpression+= "(";
-			compcount = counter;
-			while (compcount < length && (variablechecker(input[compcount]) == 0 || variablechecker(input[compcount]) == 1)) {
-				formattedexpression+=input[compcount];
-				compcount+=1;
+			if (checkmathfunc(input, counter) != 0){
+				int trigcounter = counter;
+				while (trigcounter < (counter+checkmathfunc(input, counter))){
+					formattedexpression+=input[trigcounter];
+					trigcounter+=1;
+				}
+				counter+=checkmathfunc(input, counter);
 			}
-			formattedexpression+=")";
-			counter = compcount;
+			else {	
+				formattedexpression+= "(";
+				compcount = counter;
+				while (compcount < length && (variablechecker(input[compcount]) == 0 || variablechecker(input[compcount]) == 1)) {
+					formattedexpression+=input[compcount];
+					compcount+=1;
+				}
+				formattedexpression+=")";
+				counter = compcount;
+			}
 		}
 		formattedexpression+=input[counter];
 		counter+=1;
@@ -94,6 +126,10 @@ std::string ordergrabber(std::string input, int length) {
 		counter+=1;
 	}
 	return operatororder;
+}
+
+int calculator(std::string subbed){
+	return 0;
 }
 
 
@@ -179,8 +215,21 @@ std::string simplifier(std::string substituted, std::string operatororder, int o
 	return simplified;
 }
 
-int euler(std::string equation) {
-	
+int euler(std::string equation, int length, int h, int x, int y, int finalx, char lettertosub, std::vector<char> existingvar) {
+	//take value and sub into the equation to get new y
+	//std::vector<char> existingval = [lettertosub];
+	for (int i; i<((finalx-x)/h); ++i){
+		//make eulers method fr
+		std::vector<char> tempvals = {' '};
+		tempvals.push_back(x);
+		tempvals.push_back(y);
+		int func = (calculator(substitutor(equation, length, existingvar, tempvals)));
+		y = y+(h*func);
+		x = x+h;
+		
+	}
+
+	return y;						
 }
 
 
@@ -203,37 +252,45 @@ int main(){
 	while (counter < (length)){
 		x = input[counter];
 		if (variablechecker(x)==1){
-			for (char i : existingvar){
-				if (x == i){
-					varinlist = true;
-					break;
-				}
-				else {
-					varinlist = false;
-				}
+			if (checkmathfunc(input, counter) != 0){
+				counter+=checkmathfunc(input, counter);
 			}
-			if (varinlist == false) {
-				std::cout << "Imposter: " << x << std::endl;
-				existingvar.push_back(x);
-				std::cout << "Gimme Gimme " << x << " value" << std::endl;
-				//xval used to listed as an int so its wrong data type
-				std::cin >> xval; 
-				existingvarval.push_back(xval);
-				std::cout << "existingvar: " << std::endl;
-				for (char num : existingvar) {
-				        std::cout << num << " ";
-				    }
-				std::cout << std::endl;
-				std::cout << "existingvarval: " << std::endl;
-				for (char num : existingvarval) {
-				        std::cout << num << " ";
-				    }
-				std::cout << std::endl;
-				
-			}// use thesame ethod but construct a string instead. 
+			else{		
+				for (char i : existingvar){
+					if (x == i){
+						varinlist = true;
+						break;
+					}
+					else {
+						varinlist = false;
+					}
+				}
+				if (varinlist == false) {
+					std::cout << "Imposter: " << x << std::endl;
+					existingvar.push_back(x);
+					std::cout << "Gimme Gimme " << x << " value" << std::endl;
+					//xval used to listed as an int so its wrong data type
+					std::cin >> xval; 
+					existingvarval.push_back(xval);
+					std::cout << "existingvar: " << std::endl;
+					for (char num : existingvar) {
+					        std::cout << num << " ";
+					    }
+					std::cout << std::endl;
+					std::cout << "existingvarval: " << std::endl;
+					for (char num : existingvarval) {
+					        std::cout << num << " ";
+					    }
+					std::cout << std::endl;
+					
+				}// use thesame ethod but construct a string instead. 
+			counter+=1;
+			varinlist = true;
+			}
 		}
-		counter+=1;
-		varinlist = true;
+		else{
+			counter+=1;	
+		}
 	}
 	// now has scanned list and found the non numeric and operators. 
 	std::string formatted = formatter(input, length);
@@ -251,13 +308,18 @@ int main(){
 	int substringlength = getlength(substitutedstring);
 	std::string simplified = simplifier(substitutedstring, operatororder, substringlength);
 	std::cout << "simplified expression for calculation: " << simplified << std::endl;
-	int finalval = stoi(substitutedstring);
-	std::cout << "final value = " << finalval << std::endl;
+	//int finalval = stoi(substitutedstring);
+	//std::cout << "final value = " << finalval << std::endl;
+	
 }
+
+
 
 /* todo list:
 - make the formatter do variables correclty to isolate from int components **fixed
 - fix decimals (presumably they dont work) **fixed
 - fix brackets not working **fixed
-- do euler's method 
+- do euler's method **in progress 
+- make exponents work properly
+- make trig functions get parsed properly **fixed
 */
